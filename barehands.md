@@ -46,7 +46,7 @@ Create `barehands.json` if it doesn't exist yet (copy `barehands.json.example`; 
 
 ```json
 {
-  "name": "THEIR-ASSISTANT-NAME",
+  "name": "NJAS",
   "port": 8794,
   "orbs": [
     { "title": "Notes",  "path": "/absolute/path/to/their/vault", "kind": "notes" },

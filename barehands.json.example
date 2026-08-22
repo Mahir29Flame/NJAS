@@ -1,6 +1,6 @@
 {
-  "name": "Assistant",
-  "port": 8794,
+  "name": "NJAS",
+  "port": 6729,
   "orbs": [
     {
       "title": "Notes",
@@ -8,8 +8,18 @@
       "kind": "notes"
     },
     {
-      "title": "Props",
+      "title": "Docs",
       "path": "media",
+      "kind": "media"
+    },
+    {
+      "title": "3d Models",
+      "path": "C:/Users/Asus/Documents/3D Model",
+      "kind": "media"
+    },
+    {
+      "title": "Home",
+      "path": "C:/Users/Asus",
       "kind": "media"
     }
   ]
