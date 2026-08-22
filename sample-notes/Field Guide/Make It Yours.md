@@ -5,7 +5,7 @@ Everything here is a starting point. The whole system is one HTML page, one smal
 ## The config (`barehands.json`)
 
 - `name`: what the ring says. Your assistant's name, in lights.
-- `port`: where the server listens (default 8794).
+- `port`: where the server listens (default 6729).
 - `orbs`: one entry per folder you want on the glass. `"kind": "notes"` folders bloom as markdown trees (point one at your Obsidian vault; it's just markdown). `"kind": "media"` is the props airlock. Add as many notes orbs as you like; rename them; point them anywhere.
 
 Edit the file, press **R** on the tracker, done.

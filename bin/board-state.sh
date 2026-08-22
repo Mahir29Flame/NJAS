@@ -22,7 +22,7 @@
 # truth instead of memory. Reaches nothing but localhost; changes nothing.
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
-PORT=$(python3 -c "import json;print(json.load(open('$DIR/barehands.json')).get('port',8794))" 2>/dev/null || echo 8794)
+PORT=$(python3 -c "import json;print(json.load(open('$DIR/NJAS.json')).get('port',6729))" 2>/dev/null || echo 6729)
 STATE=$(curl -sS --max-time 3 "http://127.0.0.1:$PORT/state" 2>/dev/null) || {
     echo "The board is dark — the barehands server isn't running."; exit 1; }
 export STATE

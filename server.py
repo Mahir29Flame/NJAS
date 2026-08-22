@@ -34,7 +34,7 @@ Endpoints:
   GET  /orb                    your assistant's live state (the ring reads it)
 
 Config lives in NJAS.json next to this file:
-  { "name": "Assistant", "port": 8794,
+  { "name": "NJAS", "port": 6729,
     "orbs": [ { "title": "Notes", "path": "sample-notes", "kind": "notes" },
               { "title": "Props", "path": "media",        "kind": "media" } ] }
 
@@ -58,7 +58,7 @@ HERE = Path(__file__).resolve().parent
 
 
 def load_config():
-    cfg = {"name": "Assistant", "port": 8794, "orbs": []}
+    cfg = {"name": "Assistant", "port": 6729, "orbs": []}
     try:
         cfg.update(json.loads((HERE / "NJAS.json").read_text()))
     except Exception:
@@ -298,8 +298,8 @@ class Handler(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     (HERE / "state").mkdir(exist_ok=True)   # the ring's runtime files land here
-    port = int(CONFIG.get("port", 8794))
-    print(f"barehands up: http://127.0.0.1:{port}/stage.html", flush=True)
+    port = int(CONFIG.get("port", 6729))
+    print(f"NJAS up: http://127.0.0.1:{port}/stage.html", flush=True)
     print("  tracker (camera): open that URL in Chrome", flush=True)
     print("  render (overlay): same URL + ?role=render", flush=True)
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()

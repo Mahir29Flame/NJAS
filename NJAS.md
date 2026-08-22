@@ -91,7 +91,7 @@ On Windows, adapt the hook commands to the shell (for example `cmd /c echo think
 > - **Look at the board:** `REPO/bin/board-state.sh` prints every item currently up. Run it before commenting on the board; the user moves things by hand, so never trust memory.
 > - **The airlock law:** only files inside `REPO/media/` can stage. To show a new image, copy it into `media/misc/` first, then stage it.
 
-On Windows, if bash is not available for board.sh, give the agent the direct call instead: `curl -X POST http://127.0.0.1:8794/cmd -H "Content-Type: application/json" -d "{\"a\":\"add_card\",\"title\":\"HELLO\"}"` (curl ships with Windows 10 and later).
+On Windows, if bash is not available for board.sh, give the agent the direct call instead: `curl -X POST http://127.0.0.1:6729/cmd -H "Content-Type: application/json" -d "{\"a\":\"add_card\",\"title\":\"HELLO\"}"` (curl ships with Windows 10 and later).
 
 **4c. Prove the loop.** Have their assistant (you, if you're it) run: `bin/board.sh '{"a":"add_card","title":"HELLO","body":"your AI was here"}'`; the card should materialize on the glass in front of them. That moment is the product. Let them enjoy it.
 
