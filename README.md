@@ -90,6 +90,8 @@ Free to use, and always will be. If this helped you out, you can buy Jared(not m
 
 ## License
 
-Copyright (c) 2026 Jared Rhodenizer.
+Copyright (c) 2026 Jared Rhodenizer (Original Author).
+Modifications Copyright (c) 2026 Nahiyan Jarif Mahir.
+
 
 Licensed under the GNU Affero General Public License, version 3 or later (AGPL-3.0-or-later). **Use it in your business, commercially, for free.** Run it, change it, build your workflow on top of it, and charge for the work you do with it. The one rule is that it stays open: if you hand it to someone else, or run a modified version as a service other people use, your version ships under this same license with its source available. Credit me when you build on it. Want it inside a closed-source commercial product? Email license@jaredrhod.com. Full terms are in the LICENSE file and at https://www.gnu.org/licenses/agpl-3.0.html
