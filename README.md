@@ -84,9 +84,9 @@ A board is better with an agent behind it. Give it a voice and you can talk whil
 
 ## Support
 
-Free to use, and always will be. If this helped you out, you can buy me a coffee:
+Free to use, and always will be. If this helped you out, you can buy Jared(not me) a coffee:
 
-[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/jaredrhod)
+[![Support Jared on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/jaredrhod)
 
 ## License
 
