@@ -1,10 +1,10 @@
-# barehands
+# NJAS
+## A Personalized Fork of [_barehands_](https://github.com/jaredrhod/barehands)
 
-> **Never used Claude Code?** Start at [jaredrhod.com](https://jaredrhod.com): pick your situation and it routes you to the right path.
 
-**Runs on:** a webcam and Chrome; works with any AI. Any program that writes a file or curls localhost can be its brain.
+**Runs on:** a webcam and Browser; works with any AI. Any program that writes a file or curls localhost can be its brain.
 
-Move things on your screen with your bare hands. barehands turns your webcam into a hand-tracked interface: notes, images, and 3D models float over your camera as glass cards. You pinch them, throw them, stretch them, force-pull them across the room, and blow an engine apart into its exploded view with a drag of two fingers. No headset. No controllers. No gloves. Bare hands.
+Move things on your screen with your bare hands. NJAS/barehands turns your webcam into a hand-tracked interface: notes, images, and 3D models float over your camera as glass cards. You pinch them, throw them, stretch them, force-pull them across the room, and blow an engine apart into its exploded view with a drag of two fingers. No headset. No controllers. No gloves. Bare hands.
 
 And it's a body waiting for a brain: wire in your AI and the on-screen ring becomes its face, while two small scripts give it hands and eyes on your board. Free to use, change, and build on, including commercially inside your own business, and if you pass your version on it stays open under the same license (see LICENSE).
 
@@ -15,8 +15,8 @@ And it's a body waiting for a brain: wire in your AI and the on-screen ring beco
 ## Run it (nothing needed)
 
 ```
-git clone https://github.com/jaredrhod/barehands
-cd barehands
+git clone https://github.com/Mahir29Flame/NJAS
+cd NJAS
 python3 server.py
 ```
 
