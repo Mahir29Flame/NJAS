@@ -33,7 +33,7 @@ Endpoints:
   GET  /props                  the media airlock as a browsable tree
   GET  /orb                    your assistant's live state (the ring reads it)
 
-Config lives in barehands.json next to this file:
+Config lives in NJAS.json next to this file:
   { "name": "Assistant", "port": 8794,
     "orbs": [ { "title": "Notes", "path": "sample-notes", "kind": "notes" },
               { "title": "Props", "path": "media",        "kind": "media" } ] }
@@ -60,7 +60,7 @@ HERE = Path(__file__).resolve().parent
 def load_config():
     cfg = {"name": "Assistant", "port": 8794, "orbs": []}
     try:
-        cfg.update(json.loads((HERE / "barehands.json").read_text()))
+        cfg.update(json.loads((HERE / "NJAS.json").read_text()))
     except Exception:
         pass
     if not cfg.get("orbs"):
