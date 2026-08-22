@@ -1,8 +1,9 @@
 ---
-name: barehands
+name: NJAS (a fork of )
 description: Interactive setup for barehands, the hand-tracked glass interface for your AI. Run it inside Claude Code from the repo folder. It checks the rig runs, interviews the person (their notes folders, their assistant's name), writes the config, wires their AI into the ring and the board, and walks them through the gestures. Load it and run it interactively. Do not skip phases. Do not improvise.
 version: 1.0
-author: Jared Rhodenizer (@jaredrhod)
+author: NJ Mahir [github: @Mahir29Flame]
+author of barehands: Jared Rhodenizer (@jaredrhod) [github: https://github.com/jaredrhod/barehands]
 ---
 
 # barehands: setup
@@ -26,7 +27,7 @@ Work through the phases in order. One question at a time; wait for each answer. 
 1. Confirm you are running inside the repo folder (it contains `server.py`, `stage.html`, `barehands.json.example`). If not, ask the person to `cd` there and restart.
 2. Check `python3 --version` (any Python 3.9+ is fine; the server is stdlib-only, nothing to install).
 3. Start the server: `python3 server.py` (`python server.py` on Windows; run it in the background). It prints the URL.
-4. Tell them: open **http://127.0.0.1:8794/stage.html** in **Chrome** (Chrome's hand tracking is the proven path), allow the camera when asked, and wave a hand. A cursor ring should follow their fingers, and the assistant ring should be breathing on the left.
+4. Tell them: open **http://127.0.0.1:6729/stage.html** in **Chrome** (Chrome's hand tracking is the proven path), allow the camera when asked, and wave a hand. A cursor ring should follow their fingers, and the assistant ring should be breathing on the left.
 5. Wait for them to confirm they see it. If the camera fails: the page needs a camera-equipped machine and Chrome; `C` cycles cameras if the wrong one opened. The first load needs internet (the hand-tracking model and 3D library load from Google's and jsdelivr's CDNs, then cache).
 
 Do not continue until the board is alive on their screen.
@@ -47,7 +48,7 @@ Create `barehands.json` if it doesn't exist yet (copy `barehands.json.example`; 
 ```json
 {
   "name": "NJAS",
-  "port": 8794,
+  "port": 6729,
   "orbs": [
     { "title": "Notes",  "path": "/absolute/path/to/their/vault", "kind": "notes" },
     { "title": "Props",  "path": "media",                          "kind": "media" }
