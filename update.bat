@@ -21,7 +21,9 @@ if exist ".git\" goto havegit
 rem this folder arrived as a zip: wire it to updates, once, keeping the config
 if exist "%CFG%" copy /y "%CFG%" "%CFG%.mine" >nul
 git init -b main
-git remote add origin https://github.com/jaredrhod/barehands
+git remote add origin https://github.com/Mahir29Flame/NJAS
+
+
 git fetch -q origin
 git reset --hard origin/main
 git branch --set-upstream-to=origin/main main
