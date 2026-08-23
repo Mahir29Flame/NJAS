@@ -43,7 +43,7 @@ Ask, one at a time:
 
 ## Phase 3: Write the config
 
-Create `barehands.json` if it doesn't exist yet (copy `barehands.json.example`; their copy is deliberately untracked, so updates can never touch it), then edit it from their answers:
+Rename `NJAS.json.example` to `NJAS.json`, then edit it from their answers:
 
 ```json
 {
