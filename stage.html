@@ -1739,16 +1739,16 @@ gl_FragColor = vec4(col, a); }`,
       if (up.length) { up.forEach(killItem); return; }
       const defs = (CFG.orbs || []).map((o, i) => {
         if (o.kind === "media") {
-          const p = treeCounts(PROPSTREE, true);
+          const p = treeCounts(PROPSTREES[i], true);
           return {
             title: o.title || "Props",
-            body: `${p.dirs} folders · ${p.leaves} props`, orb: "props"
+            body: `${p.dirs} folders · ${p.leaves} props`, orb: i, kind: "media"
           };
         }
         const v = treeCounts(TREES[i], false);
         return {
           title: o.title || "Notes",
-          body: `${v.dirs} folders · ${v.leaves} notes`, orb: i
+          body: `${v.dirs} folders · ${v.leaves} notes`, orb: i, kind: "notes"
         };
       });
       const side = ring.x < innerWidth / 2 ? 1 : -1;   // bloom toward center
@@ -1769,24 +1769,29 @@ gl_FragColor = vec4(col, a); }`,
     }
 
     let CFG = { name: "Assistant", orbs: [] };
-    let TREES = [], PROPSTREE = null;
+    let TREES = [], PROPSTREES = [];
     async function loadTree() {
       // NJAS.json drives everything: the ring's name and one orb per
       // configured folder (kind "notes" = a markdown tree, "media" = props)
       try { const r = await fetch("/config"); if (r.ok) CFG = await r.json(); }
       catch (e) { }
       TREES = [];
+      PROPSTREES = [];
       for (let i = 0; i < (CFG.orbs || []).length; i++) {
-        TREES[i] = null;
-        if (CFG.orbs[i].kind === "media") continue;
-        try {
-          const r = await fetch("/tree?orb=" + i);
-          if (r.ok) TREES[i] = await r.json();
+        if (CFG.orbs[i].kind === "media") {
+          PROPSTREES[i] = null;
+          try {
+            const r = await fetch("/props?orb=" + i);
+            if (r.ok) PROPSTREES[i] = await r.json();
+          } catch (e) { }
+        } else {
+          TREES[i] = null;
+          try {
+            const r = await fetch("/tree?orb=" + i);
+            if (r.ok) TREES[i] = await r.json();
+          } catch (e) { }
         }
-        catch (e) { }
       }
-      try { const r = await fetch("/props"); if (r.ok) PROPSTREE = await r.json(); }
-      catch (e) { }
     }
 
     function treeCounts(d, isProps) {
@@ -1820,6 +1825,7 @@ gl_FragColor = vec4(col, a); }`,
 
     function browserRows(b) {
       const out = [];
+      const isMediaOrb = b.kind === "media" || (CFG.orbs && CFG.orbs[b.bkind] && CFG.orbs[b.bkind].kind === "media");
       const walk = (d, path, depth, isProps) => {
         d.dirs.forEach(sub => {
           const key = path + "/" + sub.name;
@@ -1832,7 +1838,7 @@ gl_FragColor = vec4(col, a); }`,
           else out.push({ d: depth, t: x.title, k: "note", f: x.file });
         });
       };
-      if (b.bkind === "props" && PROPSTREE) walk(PROPSTREE, "", 0, true);
+      if (isMediaOrb && PROPSTREES[b.bkind]) walk(PROPSTREES[b.bkind], "", 0, true);
       else if (typeof b.bkind === "number" && TREES[b.bkind])
         walk(TREES[b.bkind], "", 0, false);
       return out;
@@ -1864,15 +1870,15 @@ gl_FragColor = vec4(col, a); }`,
       const ex = items.find(i => i.type === "browser" && i.bkind === kind);
       if (ex) { killItem(ex); return; }
       loadTree().then(() => {
-        const label = String(kind === "props" ? "Props"
-          : ((CFG.orbs || [])[kind] || {}).title || "Notes").toUpperCase();
+        const orbCfg = (CFG.orbs || [])[kind] || {};
+        const label = String(orbCfg.title || (kind === "props" ? "Props" : "Notes")).toUpperCase();
         const el = document.createElement("div");
         el.className = "panel browser";
         el.innerHTML = `<div class="bar"><h3>${escT(label)}</h3></div>` +
           `<div class="body"><div class="scroll"></div></div>`;
         BEHIND.appendChild(el);
         const b = {
-          el, id: UID++, type: "browser", bkind: kind,
+          el, id: UID++, type: "browser", bkind: kind, kind: orbCfg.kind || (kind === "props" ? "media" : "notes"),
           def: { title: label, file: "" },
           expanded: new Set(), rows: [], rowTuples: [], rowsV: 0,
           x: ox != null ? Math.min(Math.max(ox, 300), innerWidth - 300)
@@ -1920,7 +1926,7 @@ gl_FragColor = vec4(col, a); }`,
             killItem(b);   // v3.3 (his broadened rule): selecting ANYTHING
             // closes the whole pane — only dir taps keep it
           } else if (row.k === "prop") {
-            const src = "/media/" + row.f;
+            const src = row.f.startsWith("/media_file/") ? row.f : "/media_file/" + row.f;
             const it = isModelSrc(src) ? makeModel(src, row.t)
               : makeImage(src, row.t);
             it.x = Math.min(b.x + 480, innerWidth - 240); it.y = b.y;

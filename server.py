@@ -89,6 +89,19 @@ def orb_root(i):
         return None
 
 
+def orb_media_root(i):
+    """Resolve a media orb's jail root, or None."""
+    try:
+        orb = CONFIG["orbs"][int(i)]
+        assert orb.get("kind") == "media"
+        p = Path(orb["path"])
+        if not p.is_absolute():
+            p = HERE / p
+        return p.resolve()
+    except Exception:
+        return None
+
+
 _STATE = b"{}"          # latest scene state: tracker POSTs, render GETs
 _CMDS = []              # queued board commands (your AI -> tracker)
 _ALLOWED = ("add_img", "add_card", "clear", "reset", "hand", "give",
@@ -99,7 +112,7 @@ _ALLOWED = ("add_img", "add_card", "clear", "reset", "hand", "give",
 class Handler(SimpleHTTPRequestHandler):
     def end_headers(self):
         # no-store on the page itself so a plain reload always serves
-        # current code (Browser happily caches through reloads otherwise)
+        # current code (Chrome happily caches through reloads otherwise)
         if self.path.split("?")[0].endswith("stage.html"):
             self.send_header("Cache-Control", "no-store")
         super().end_headers()
@@ -139,25 +152,20 @@ class Handler(SimpleHTTPRequestHandler):
                 cmd = json.loads(body)
                 assert cmd.get("a") in _ALLOWED
                 if cmd["a"] in ("add_img", "hand", "give", "present") and cmd.get("src"):
-                    # THE AIRLOCK: only files really inside ./media/ ever
-                    # stage — subfolders allowed, escapes 400. If the
-                    # exact path misses, a UNIQUE basename match anywhere
-                    # inside the airlock self-heals a wrong-folder guess;
-                    # zero or many matches still 400.
-                    rel = str(cmd.get("src", "")).lstrip("/")
-                    if rel.startswith("media/"):
-                        rel = rel[6:]
-                    media = (HERE / "media").resolve()
-                    target = (media / rel).resolve()
-                    if media not in target.parents or not target.is_file():
-                        name = Path(rel).name.lower()
-                        hits = [p for p in media.rglob("*")
-                                if p.is_file()
-                                and p.name.lower() == name] if name else []
-                        if len(hits) != 1:
-                            raise ValueError("not in the media airlock")
-                        target = hits[0]
-                    cmd["src"] = "/media/" + target.relative_to(media).as_posix()
+                    src_str = str(cmd.get("src", "")).lstrip("/")
+                    if not src_str.startswith("media_file/"):
+                        found_rel = None
+                        for i, orb in enumerate(CONFIG.get("orbs", [])):
+                            if orb.get("kind") == "media":
+                                root = orb_media_root(i)
+                                if not root: continue
+                                rel = src_str[6:] if src_str.startswith("media/") else src_str
+                                target = (root / rel).resolve()
+                                if (root in target.parents or target == root) and target.is_file():
+                                    found_rel = f"/media_file/{i}/{target.relative_to(root).as_posix()}"
+                                    break
+                        if found_rel:
+                            cmd["src"] = found_rel
                 _CMDS.append(cmd)
                 self.send_response(204)
             except Exception:
@@ -173,13 +181,11 @@ class Handler(SimpleHTTPRequestHandler):
             self._json({"name": CONFIG.get("name", "Assistant"),
                         "orbs": [{"title": o.get("title", "?"),
                                   "kind": o.get("kind", "notes")}
-                                 for o in CONFIG["orbs"]]})
+                                 for o in CONFIG.get("orbs", [])]})
             return
         if self.path.startswith("/tree"):
-            # a notes orb's folder tree. Jailed to that orb's configured
-            # folder, .md only, CLAUDE.md (AI config, not a note) excluded.
-            q = urllib.parse.parse_qs(
-                urllib.parse.urlparse(self.path).query)
+            # a notes orb's folder tree
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
             idx = (q.get("orb") or ["0"])[0]
             root = orb_root(idx)
             if root is None or not root.is_dir():
@@ -188,19 +194,20 @@ class Handler(SimpleHTTPRequestHandler):
 
             def walk(d):
                 out = {"name": d.name, "notes": [], "dirs": []}
-                for p in sorted(d.iterdir()):
-                    if p.name.startswith("."):
-                        continue
-                    if p.is_dir():
-                        sub = walk(p)
-                        if sub["notes"] or sub["dirs"]:
-                            out["dirs"].append(sub)
-                    elif p.suffix == ".md" and p.name != "CLAUDE.md":
-                        # note files travel as "<orb>/<relpath>" so /note
-                        # knows which jail to resolve them against
-                        out["notes"].append(
-                            {"title": p.stem,
-                             "file": f"{int(idx)}/{p.relative_to(root)}"})
+                try:
+                    for p in sorted(d.iterdir()):
+                        if p.name.startswith("."):
+                            continue
+                        if p.is_dir():
+                            sub = walk(p)
+                            if sub["notes"] or sub["dirs"]:
+                                out["dirs"].append(sub)
+                        elif p.suffix == ".md" and p.name != "CLAUDE.md":
+                            out["notes"].append(
+                                {"title": p.stem,
+                                 "file": f"{int(idx)}/{p.relative_to(root)}"})
+                except Exception:
+                    pass
                 return out
             try:
                 tree = walk(root)
@@ -209,31 +216,76 @@ class Handler(SimpleHTTPRequestHandler):
             except Exception:
                 self._json({"name": "?", "notes": [], "dirs": []}, 500)
             return
-        if self.path == "/props":
-            # the media airlock as a browsable tree — live filesystem
-            # read: drop a file in media/, reopen the orb, it's there
-            EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".webm",
-                    ".glb", ".gltf"}
-            media_root = (HERE / "media").resolve()
+        if self.path.startswith("/props"):
+            # a media orb's folder tree
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            idx_str = (q.get("orb") or [""])[0]
+            if not idx_str:
+                for i, o in enumerate(CONFIG.get("orbs", [])):
+                    if o.get("kind") == "media":
+                        idx_str = str(i)
+                        break
+                idx_str = idx_str or "0"
+            
+            idx = int(idx_str)
+            media_root = orb_media_root(idx)
+            if media_root is None or not media_root.is_dir():
+                self._json({"name": "?", "items": [], "dirs": []}, 404)
+                return
+
+            EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".webm", ".glb", ".gltf"}
 
             def walkm(d):
                 out = {"name": d.name, "items": [], "dirs": []}
-                for p in sorted(d.iterdir()):
-                    if p.name.startswith("."):
-                        continue
-                    if p.is_dir():
-                        sub = walkm(p)
-                        if sub["items"] or sub["dirs"]:
-                            out["dirs"].append(sub)
-                    elif p.suffix.lower() in EXTS:
-                        out["items"].append(str(p.relative_to(media_root)))
+                try:
+                    for p in sorted(d.iterdir()):
+                        if p.name.startswith("."):
+                            continue
+                        if p.is_dir():
+                            sub = walkm(p)
+                            if sub["items"] or sub["dirs"]:
+                                out["dirs"].append(sub)
+                        elif p.suffix.lower() in EXTS:
+                            out["items"].append(f"{idx}/{p.relative_to(media_root).as_posix()}")
+                except Exception:
+                    pass
                 return out
+
             try:
                 tree = walkm(media_root)
-                tree["name"] = "Props"
+                tree["name"] = CONFIG["orbs"][idx].get("title", tree["name"])
                 self._json(tree)
             except Exception:
-                self._json({"name": "Props", "items": [], "dirs": []}, 500)
+                self._json({"name": "?", "items": [], "dirs": []}, 500)
+            return
+        if self.path.startswith("/media_file/"):
+            try:
+                parts = self.path[12:].split("/", 1)
+                idx = int(parts[0])
+                rel_path = urllib.parse.unquote(parts[1])
+                media_root = orb_media_root(idx)
+                if media_root:
+                    target = (media_root / rel_path).resolve()
+                    if media_root in target.parents or target == media_root:
+                        if target.is_file():
+                            self.send_response(200)
+                            ct = "application/octet-stream"
+                            s = target.suffix.lower()
+                            if s in (".png", ".jpg", ".jpeg", ".webp", ".gif"):
+                                ct = f"image/{s[1:] if s != '.jpg' else 'jpeg'}"
+                            elif s == ".webm": ct = "video/webm"
+                            elif s in (".glb", ".gltf"): ct = "model/gltf-binary" if s == ".glb" else "model/gltf+json"
+                            self.send_header("Content-Type", ct)
+                            self.send_header("Content-Length", str(target.stat().st_size))
+                            self.send_header("Cache-Control", "max-age=3600")
+                            self.end_headers()
+                            with open(target, "rb") as f:
+                                self.wfile.write(f.read())
+                            return
+            except Exception:
+                pass
+            self.send_response(404)
+            self.end_headers()
             return
         if self.path == "/orb":
             # the ring's heartbeat: your assistant's live state, read from
@@ -300,6 +352,6 @@ if __name__ == "__main__":
     (HERE / "state").mkdir(exist_ok=True)   # the ring's runtime files land here
     port = int(CONFIG.get("port", 6729))
     print(f"NJAS up: http://127.0.0.1:{port}/stage.html", flush=True)
-    print("  tracker (camera): open that URL in Browser", flush=True)
+    print("  tracker (camera): open that URL in Chrome", flush=True)
     print("  render (overlay): same URL + ?role=render", flush=True)
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
