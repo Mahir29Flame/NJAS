@@ -166,7 +166,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
     /* THE GLASS ERA (2026-08-13, Jared's redesign): clean CLEAR glass —
      low-alpha smoked fills you genuinely see through, one luminous
-     edge, a specular kiss on top. No wireframe chrome; restraint IS
+     edge, a specular kiss on top. No wireframe Browser; restraint IS
      the aesthetic. Readability rides halo text, not slab fills. */
     .card {
       position: absolute;
@@ -276,7 +276,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     }
 
     /* MATERIALIZE-AS-LIGHT (Jared's call 8/9): images ARRIVE as hologram
-     — teal monochrome light + one scan sweep — then resolve to their
+     — teal monoBrowser light + one scan sweep — then resolve to their
      TRUE colors. Theater at the edges, truth in the content (evidence
      stays evidence; the folder law's spirit for pixels). */
     .card.imgcard img,
@@ -361,7 +361,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     }
 
     /* BUILD 1 — 3D HOLOGRAMS (2026-08-09, gestures at 1.4): a model
-     renders NAKED like fx — transparent WebGL canvas, ZERO chrome (the
+     renders NAKED like fx — transparent WebGL canvas, ZERO Browser (the
      1.1 handle-bar zone died to the no-small-targets law; the base bar
      killed at 1.3, Jared's call). Pinch = move; hold-still latches
      spin — the charge cue is the MODEL brightening via --ch; two hands
@@ -670,7 +670,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
         '<p style="margin-top:16px">Start it from the NJAS folder:</p>' +
         '<pre style="background:#052227;border:1px solid #14484f;padding:12px 14px;border-radius:8px;color:#9ff0dd">' +
         'python3 server.py      <span style="color:#6b9c96"># Windows: python server.py</span></pre>' +
-        '<p style="margin-top:14px">Then open this in Chrome:</p>' +
+        '<p style="margin-top:14px">Then open this in Browser:</p>' +
         '<pre style="background:#052227;border:1px solid #14484f;padding:12px 14px;border-radius:8px;color:#9ff0dd">' +
         'http://127.0.0.1:6729/stage.html</pre>' +
         '<p style="margin-top:18px;color:#7fb3ab">If you changed "port" in NJAS.json, use that port instead.</p>' +
@@ -766,7 +766,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     // ---- FOLEY (2026-08-07): synthesized WebAudio — the objects make SOUND,
     // which is what makes invisible cards feel physical. Plays from the
     // TRACKER page through Mac audio, captured by the existing stream rig.
-    // Chrome arms audio on the first user gesture (any key/click).
+    // Browser arms audio on the first user gesture (any key/click).
     // foley ships OFF by default (a field call: the sounds read as noise
     // on camera). The engine stays; &sound=1 turns it on.
     const SOUND = Q.get("sound") === "1";
@@ -817,7 +817,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     };
 
     function makeImage(src, title) {
-      // THE FX LAYER: media/fx/ = naked render (no card chrome); .webm =
+      // THE FX LAYER: media/fx/ = naked render (no card Browser); .webm =
       // silent looping alpha video. Both stay type "img" so every gesture —
       // grab, stretch, fling, give-back, flash-close — works unchanged.
       const fx = /\/fx\//i.test(src);
@@ -972,7 +972,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
       x.shadowBlur = 6;
       x.strokeStyle = col(0.5); x.lineWidth = 1.5;
       x.beginPath(); x.arc(0, 0, 165, 0, 7); x.stroke();
-      // tick ring (static chrome)
+      // tick ring (static Browser)
       x.shadowBlur = 0;
       for (let i = 0; i < 48; i++) {
         const a = i / 48 * Math.PI * 2;
@@ -3393,7 +3393,7 @@ gl_FragColor = vec4(col, a); }`,
     const SHOW_CURSORS = Q.get("cursors") !== "0";
     // THE 2X RENDER (Jared's pixelation catch: OBS's CEF rasterizes DOM
     // cards once at layout size and bitmap-stretches them — big cards go
-    // blurry; real Chrome re-rasterizes). &ss=2 + an OBS browser source at
+    // blurry; real Browser re-rasterizes). &ss=2 + an OBS browser source at
     // 3840x2160: body zoom doubles every layout raster, JS positions
     // compensate (zoom multiplies written px), OBS downscales — cards get
     // 2x the pixels at any stretch, the glass gradient renders finer too.

@@ -99,7 +99,7 @@ _ALLOWED = ("add_img", "add_card", "clear", "reset", "hand", "give",
 class Handler(SimpleHTTPRequestHandler):
     def end_headers(self):
         # no-store on the page itself so a plain reload always serves
-        # current code (Chrome happily caches through reloads otherwise)
+        # current code (Browser happily caches through reloads otherwise)
         if self.path.split("?")[0].endswith("stage.html"):
             self.send_header("Cache-Control", "no-store")
         super().end_headers()
@@ -300,6 +300,6 @@ if __name__ == "__main__":
     (HERE / "state").mkdir(exist_ok=True)   # the ring's runtime files land here
     port = int(CONFIG.get("port", 6729))
     print(f"NJAS up: http://127.0.0.1:{port}/stage.html", flush=True)
-    print("  tracker (camera): open that URL in Chrome", flush=True)
+    print("  tracker (camera): open that URL in Browser", flush=True)
     print("  render (overlay): same URL + ?role=render", flush=True)
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()

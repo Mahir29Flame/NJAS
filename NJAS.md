@@ -27,8 +27,8 @@ Work through the phases in order. One question at a time; wait for each answer. 
 1. Confirm you are running inside the repo folder (it contains `server.py`, `stage.html`, `barehands.json.example`). If not, ask the person to `cd` there and restart.
 2. Check `python3 --version` (any Python 3.9+ is fine; the server is stdlib-only, nothing to install).
 3. Start the server: `python3 server.py` (`python server.py` on Windows; run it in the background). It prints the URL.
-4. Tell them: open **http://127.0.0.1:6729/stage.html** in **Chrome** (Chrome's hand tracking is the proven path), allow the camera when asked, and wave a hand. A cursor ring should follow their fingers, and the assistant ring should be breathing on the left.
-5. Wait for them to confirm they see it. If the camera fails: the page needs a camera-equipped machine and Chrome; `C` cycles cameras if the wrong one opened. The first load needs internet (the hand-tracking model and 3D library load from Google's and jsdelivr's CDNs, then cache).
+4. Tell them: open **http://127.0.0.1:6729/stage.html** in **Default Browser** (Browser's hand tracking is the proven path), allow the camera when asked, and wave a hand. A cursor ring should follow their fingers, and the assistant ring should be breathing on the left.
+5. Wait for them to confirm they see it. If the camera fails: the page needs a camera-equipped machine and Browser; `C` cycles cameras if the wrong one opened. The first load needs internet (the hand-tracking model and 3D library load from Google's and jsdelivr's CDNs, then cache).
 
 Do not continue until the board is alive on their screen.
 
@@ -141,7 +141,7 @@ Offer all of this, do not push it. If they say "just this piece for now," tell t
 
 They should never have to remember a command or a URL to use this. Before the tour, put a launcher on their Desktop named after their board, and **test it by double-clicking it with them.** Never hand over an untested shortcut.
 
-The launcher does three things in order: check whether the server is already answering on their configured port, start it if it is not (**minimized, not hidden**: a hidden background launcher looks like malware to antivirus, and they should be able to see it running and close it to stop it), then open `http://127.0.0.1:<their port>/stage.html` in Chrome. Send the server's output to a log file beside the script so a failed start is still readable. (Credit where it is due: this pattern came from a community member who built it for himself on Windows and shared it.)
+The launcher does three things in order: check whether the server is already answering on their configured port, start it if it is not (**minimized, not hidden**: a hidden background launcher looks like malware to antivirus, and they should be able to see it running and close it to stop it), then open `http://127.0.0.1:<their port>/stage.html` in Browser. Send the server's output to a log file beside the script so a failed start is still readable. (Credit where it is due: this pattern came from a community member who built it for himself on Windows and shared it.)
 
 **macOS (`.command`), and this line is MANDATORY:**
 
