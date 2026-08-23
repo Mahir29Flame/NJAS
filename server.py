@@ -183,6 +183,9 @@ class Handler(SimpleHTTPRequestHandler):
                                   "kind": o.get("kind", "notes")}
                                  for o in CONFIG.get("orbs", [])]})
             return
+        SKIP_DIRS = {"appdata", "node_modules", ".git", ".vscode", ".gemini",
+                     "$recycle.bin", "system volume information", "application data"}
+
         if self.path.startswith("/tree"):
             # a notes orb's folder tree
             q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
@@ -192,20 +195,22 @@ class Handler(SimpleHTTPRequestHandler):
                 self._json({"name": "?", "notes": [], "dirs": []}, 404)
                 return
 
-            def walk(d):
+            def walk(d, depth=0, max_depth=3):
                 out = {"name": d.name, "notes": [], "dirs": []}
+                if depth > max_depth:
+                    return out
                 try:
                     for p in sorted(d.iterdir()):
-                        if p.name.startswith("."):
+                        if p.name.startswith(".") or p.name.lower() in SKIP_DIRS:
                             continue
                         if p.is_dir():
-                            sub = walk(p)
+                            sub = walk(p, depth + 1, max_depth)
                             if sub["notes"] or sub["dirs"]:
                                 out["dirs"].append(sub)
                         elif p.suffix == ".md" and p.name != "CLAUDE.md":
                             out["notes"].append(
                                 {"title": p.stem,
-                                 "file": f"{int(idx)}/{p.relative_to(root)}"})
+                                 "file": f"{int(idx)}/{p.relative_to(root).as_posix()}"})
                 except Exception:
                     pass
                 return out
@@ -235,14 +240,16 @@ class Handler(SimpleHTTPRequestHandler):
 
             EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".webm", ".glb", ".gltf"}
 
-            def walkm(d):
+            def walkm(d, depth=0, max_depth=3):
                 out = {"name": d.name, "items": [], "dirs": []}
+                if depth > max_depth:
+                    return out
                 try:
                     for p in sorted(d.iterdir()):
-                        if p.name.startswith("."):
+                        if p.name.startswith(".") or p.name.lower() in SKIP_DIRS:
                             continue
                         if p.is_dir():
-                            sub = walkm(p)
+                            sub = walkm(p, depth + 1, max_depth)
                             if sub["items"] or sub["dirs"]:
                                 out["dirs"].append(sub)
                         elif p.suffix.lower() in EXTS:

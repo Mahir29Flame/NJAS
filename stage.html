@@ -1777,21 +1777,20 @@ gl_FragColor = vec4(col, a); }`,
       catch (e) { }
       TREES = [];
       PROPSTREES = [];
-      for (let i = 0; i < (CFG.orbs || []).length; i++) {
-        if (CFG.orbs[i].kind === "media") {
-          PROPSTREES[i] = null;
-          try {
+      const tasks = (CFG.orbs || []).map(async (orb, i) => {
+        try {
+          if (orb.kind === "media") {
+            PROPSTREES[i] = null;
             const r = await fetch("/props?orb=" + i);
             if (r.ok) PROPSTREES[i] = await r.json();
-          } catch (e) { }
-        } else {
-          TREES[i] = null;
-          try {
+          } else {
+            TREES[i] = null;
             const r = await fetch("/tree?orb=" + i);
             if (r.ok) TREES[i] = await r.json();
-          } catch (e) { }
-        }
-      }
+          }
+        } catch (e) { }
+      });
+      await Promise.all(tasks);
     }
 
     function treeCounts(d, isProps) {
