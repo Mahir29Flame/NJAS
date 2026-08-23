@@ -349,7 +349,8 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
             return
         target = (root / rel).resolve()
-        if (root not in target.parents) or target.suffix != ".md" \
+        if not ((root in target.parents or target == root) and target.suffix == ".md" \
+            and target.is_file()):
                 or not target.is_file():
             self.send_response(404)
             self.end_headers()
