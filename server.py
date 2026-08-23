@@ -195,18 +195,17 @@ class Handler(SimpleHTTPRequestHandler):
                 self._json({"name": "?", "notes": [], "dirs": []}, 404)
                 return
 
-            def walk(d, depth=0, max_depth=3):
+            def walk(d, depth=0, max_depth=6):
                 out = {"name": d.name, "notes": [], "dirs": []}
                 if depth > max_depth:
                     return out
                 try:
                     for p in sorted(d.iterdir()):
-                        if p.name.startswith(".") or p.name.lower() in SKIP_DIRS:
+                        if p.name.lower() in SKIP_DIRS or p.name.startswith("."):
                             continue
                         if p.is_dir():
                             sub = walk(p, depth + 1, max_depth)
-                            if sub["notes"] or sub["dirs"]:
-                                out["dirs"].append(sub)
+                            out["dirs"].append(sub)
                         elif p.suffix == ".md" and p.name != "CLAUDE.md":
                             out["notes"].append(
                                 {"title": p.stem,
@@ -238,21 +237,29 @@ class Handler(SimpleHTTPRequestHandler):
                 self._json({"name": "?", "items": [], "dirs": []}, 404)
                 return
 
-            EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".webm", ".glb", ".gltf"}
+            EXTS = {
+                # 3D Models
+                ".glb", ".gltf", ".obj", ".stl", ".fbx", ".dae", ".blend", ".3ds",
+                # Images
+                ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".bmp", ".avif", ".ico",
+                # Videos & Audio
+                ".webm", ".mp4", ".mov", ".mkv", ".m4v", ".avi", ".mp3", ".wav", ".ogg",
+                # Documents & Data
+                ".md", ".txt", ".pdf", ".json", ".csv"
+            }
 
-            def walkm(d, depth=0, max_depth=3):
+            def walkm(d, depth=0, max_depth=6):
                 out = {"name": d.name, "items": [], "dirs": []}
                 if depth > max_depth:
                     return out
                 try:
                     for p in sorted(d.iterdir()):
-                        if p.name.startswith(".") or p.name.lower() in SKIP_DIRS:
+                        if p.name.lower() in SKIP_DIRS or p.name.startswith("."):
                             continue
                         if p.is_dir():
                             sub = walkm(p, depth + 1, max_depth)
-                            if sub["items"] or sub["dirs"]:
-                                out["dirs"].append(sub)
-                        elif p.suffix.lower() in EXTS:
+                            out["dirs"].append(sub)
+                        elif p.suffix.lower() in EXTS or not p.suffix:
                             out["items"].append(f"{idx}/{p.relative_to(media_root).as_posix()}")
                 except Exception:
                     pass
